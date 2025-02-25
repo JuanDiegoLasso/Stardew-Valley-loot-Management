@@ -29,13 +29,11 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
         setPreferredSize(new Dimension(600, 400));
         setBackground(new Color(255, 239, 191));
 
-        // Cargamos el primer árbol (Manualidades)
         nodos = servicio.crearGrafoManualidades();
         if (!nodos.isEmpty()) {
             nodoActual = nodos.get(0);
         }
 
-        // Cargar imágenes (lote.png, lotecompleto.png)
         URL url1 = getClass().getResource("/lote.png");
         if (url1 == null) {
             System.out.println("No se encontró lote.png");
@@ -49,7 +47,6 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
             loteCompletoImagen = new ImageIcon(url2).getImage();
         }
 
-        // Cargar fondo (arbol.png)
         URL bgUrl = getClass().getResource("/arbol.png");
         if (bgUrl == null) {
             System.out.println("No se encontró arbol.png");
@@ -190,7 +187,7 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                 repaint();
             } else {
                 if (nodoActual != null) {
-                    // Leemos sourceTree y sourceNodeIndex del nodo
+
                     ItemsDialog dialog = new ItemsDialog(
                         (JFrame) SwingUtilities.getWindowAncestor(this),
                         nodoActual
@@ -268,7 +265,6 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
         requestFocusInWindow();
     }
 
-    // Diálogo donde definimos la lógica de imágenes según sourceTree/sourceNodeIndex
     class ItemsDialog extends JDialog {
         private NodoCultivo nodo;
         private JButton aceptarButton, guardarButton;
@@ -313,7 +309,6 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
             private Rectangle[] slotRects;
             private int selectedIndex = -1;
 
-            // Aquí definimos las rutas de imágenes para cada árbol/nodo.
             private final String[][] manualidadesMapping = {
                 {"Wild_Horseradish.png","Daffodil.png","Leek.png","Dandelion.png"},
                 {"Grape.png","Spice_Berry.png","Sweet_Pea.png"},
@@ -368,7 +363,7 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                 setPreferredSize(new Dimension(400, 200));
                 addMouseListener(this);
 
-                // Determinamos las imágenes elegibles a partir de sourceTree y sourceNodeIndex
+
                 String[] eligiblePaths = new String[0];
                 if (sourceTree == 0 && sourceNodeIndex < manualidadesMapping.length) {
                     eligiblePaths = manualidadesMapping[sourceNodeIndex];
@@ -381,11 +376,11 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                 } else if (sourceTree == 4 && sourceNodeIndex < tablonMapping.length) {
                     eligiblePaths = tablonMapping[sourceNodeIndex];
                 } else if (sourceTree == 5) {
-                    // En multiverso, usar un super set
+
                     eligiblePaths = multiversoPaths;
                 }
 
-                // n = cantidad de imágenes elegibles
+
                 int n = eligiblePaths.length;
 
                 topImages = new Image[n];
@@ -394,14 +389,13 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                     topImages[i] = loadImage("/" + eligiblePaths[i]);
                 }
 
-                // Ubicamos las imágenes en fila arriba
+    
                 for (int i = 0; i < n; i++) {
                     int x = 20 + i * 70;
                     int y = 20;
                     topRects[i] = new Rectangle(x, y, 60, 60);
                 }
 
-                // Creamos n slots abajo
                 slots = new Image[n];
                 slotRects = new Rectangle[n];
                 for (int i = 0; i < n; i++) {
@@ -424,7 +418,7 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                // Dibujar imágenes de arriba
+
                 for (int i = 0; i < topImages.length; i++) {
                     Rectangle r = topRects[i];
                     if (topImages[i] != null) {
@@ -437,7 +431,7 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                     g.drawRect(r.x, r.y, r.width, r.height);
                 }
 
-                // Dibujar slots abajo
+
                 for (int i = 0; i < slots.length; i++) {
                     Rectangle r = slotRects[i];
                     g.setColor(Color.ORANGE);
@@ -453,7 +447,7 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
             @Override
             public void mouseClicked(MouseEvent e) {
                 Point p = e.getPoint();
-                // 1) clic en imagen de arriba
+
                 for (int i = 0; i < topImages.length; i++) {
                     if (topRects[i].contains(p)) {
                         selectedIndex = i;
@@ -461,14 +455,12 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                         return;
                     }
                 }
-                // 2) clic en slot
+
                 for (int i = 0; i < slots.length; i++) {
                     if (slotRects[i].contains(p)) {
                         if (selectedIndex != -1 && topImages[selectedIndex] != null) {
                             slots[i] = topImages[selectedIndex];
-                            // Si quieres remover la imagen de arriba:
-                            // topImages[selectedIndex] = null;
-                            // selectedIndex = -1;
+
                             repaint();
                         }
                         return;
@@ -485,7 +477,6 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                 return true;
             }
 
-            // Métodos vacíos
             @Override public void mousePressed(MouseEvent e) {}
             @Override public void mouseReleased(MouseEvent e) {}
             @Override public void mouseEntered(MouseEvent e) {}
