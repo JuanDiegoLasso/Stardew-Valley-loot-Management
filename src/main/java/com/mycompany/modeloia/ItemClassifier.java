@@ -22,19 +22,19 @@ import java.util.Map;
 
 public class ItemClassifier {
 
-    // Diccionario para almacenar (nombre de archivo -> embedding)
+
     private Map<String, float[]> databaseEmbeddings = new HashMap<>();
 
-    // Predictor para obtener embeddings usando MobileNetV2 preentrenado
+
     private Predictor<Image, float[]> predictor;
 
     public ItemClassifier() throws Exception {
-        // Se define el Criteria para cargar MobileNetV2 con DJL y se establece un Translator personalizado
+
         Criteria<Image, float[]> criteria = Criteria.builder()
                 .setTypes(Image.class, float[].class)
                 .optArtifactId("mobilenet")
                 .optEngine("TensorFlow")
-                .optFilter("flavor", "v2")  // intenta con "v2" para MobileNetV2
+                .optFilter("flavor", "v2")  
                 .optTranslator(new MobileNetTranslator())
                 .build();
 
@@ -42,26 +42,26 @@ public class ItemClassifier {
         predictor = model.newPredictor();
     }
 
-    // Translator personalizado para MobileNetV2: redimensiona, normaliza y prepara la imagen
+
     public static class MobileNetTranslator implements Translator<Image, float[]> {
 
         @Override
         public NDList processInput(TranslatorContext ctx, Image input) {
-            // Redimensionar la imagen a 224x224
+       
             Image resized = input.resize(224, 224, false);
-            // Convertir la imagen a NDArray (se asume formato RGB)
+
             NDArray array = resized.toNDArray(ctx.getNDManager(), Image.Flag.COLOR);
             System.out.println("Shape original: " + array.getShape());
-            // Convertir a float32 y normalizar: (valor/127.5 - 1) para rango [-1, 1]
+
             array = array.toType(DataType.FLOAT32, true).div(127.5f).sub(1.0f);
-            // Agregar la dimensión de batch: [1, 224, 224, 3]
+
             
             return new NDList(array);
         }
 
         @Override
         public float[] processOutput(TranslatorContext ctx, NDList list) {
-            // Se espera un NDArray de salida con forma [1, embedding_dim]
+       
             NDArray embedding = list.singletonOrThrow().squeeze();
             return embedding.toFloatArray();
         }
@@ -72,13 +72,12 @@ public class ItemClassifier {
         }
     }
 
-    // Extrae el embedding de una imagen dada su ruta
+
     public float[] extractFeatures(String imagePath) throws IOException, TranslateException {
         Image image = ImageFactory.getInstance().fromFile(Paths.get(imagePath));
         return predictor.predict(image);
     }
 
-    // Construye la base de datos de embeddings recorriendo la carpeta de sprites
     public void buildDatabase(String folderPath) throws IOException, TranslateException {
         File folder = new File(folderPath);
         File[] files = folder.listFiles(new FilenameFilter() {
@@ -99,7 +98,7 @@ public class ItemClassifier {
         System.out.println("Base de datos cargada con " + databaseEmbeddings.size() + " ítems.");
     }
 
-    // Calcula la distancia euclidiana entre dos vectores
+
     public static float euclideanDistance(float[] a, float[] b) {
         float sum = 0;
         for (int i = 0; i < a.length; i++) {
@@ -109,7 +108,6 @@ public class ItemClassifier {
         return (float) Math.sqrt(sum);
     }
 
-    // Dada la ruta de una imagen de prueba, encuentra el ítem más cercano en la base de datos
     public PredictionResult predictItem(String testImagePath) throws IOException, TranslateException {
         float[] testEmb = extractFeatures(testImagePath);
         String bestLabel = null;
@@ -124,7 +122,7 @@ public class ItemClassifier {
         return new PredictionResult(bestLabel, bestDistance);
     }
 
-    // Clase para encapsular el resultado de la predicción
+
     public static class PredictionResult {
         public String label;
         public float distance;
@@ -135,17 +133,15 @@ public class ItemClassifier {
         }
     }
 
-    // Método main de ejemplo
+
     public static void main(String[] args) {
         try {
-            // Crear el clasificador
+
             ItemClassifier classifier = new ItemClassifier();
 
-            // Ruta a la carpeta de sprites en NetBeans
             String itemsFolder = "C:\\Users\\cjcue\\Documents\\NetBeansProjects\\ModeloIA\\src\\main\\resources\\ITEMS";
             classifier.buildDatabase(itemsFolder);
 
-            // Imagen de prueba: por ejemplo, "sprite_0.png" dentro de la misma carpeta
             String testImagePath = "C:\\Users\\cjcue\\Documents\\NetBeansProjects\\ModeloIA\\src\\main\\resources\\ITEMS\\sprite_0.png";
 
             PredictionResult result = classifier.predictItem(testImagePath);

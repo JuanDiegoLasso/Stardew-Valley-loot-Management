@@ -1,27 +1,17 @@
 package Model;
 
-/**
- * Clase principal de "Servicio" que crea diferentes "grafos" (listas de nodos)
- * sin usar List ni ArrayList. Incluye:
- *  - MiListaEnlazada (estructura lineal)
- *  - Arbol (estructura de árbol)
- *  - Grafo (estructura de grafo)
- *  - HashEstructura (estructura de hash)
- */
 public class Servicio {
 
-    // -------------------------------------------------------------------------
-    // 1) NODO DE CULTIVO
-    // -------------------------------------------------------------------------
+
     public static class NodoCultivo {
         public String nombre;
         public int x, y;
-        public NodoCultivo siguiente;  // Puntero al siguiente (lista enlazada)
+        public NodoCultivo siguiente;
         public boolean completado = false;
         public boolean[] circulos;
 
-        public int sourceTree;       // Indica de qué "árbol/grafo" viene
-        public int sourceNodeIndex;  // Indica índice dentro de ese "árbol/grafo"
+        public int sourceTree;       
+        public int sourceNodeIndex; 
 
         public NodoCultivo(String nombre, int x, int y, int numCirculos,
                            int sourceTree, int sourceNodeIndex) {
@@ -38,9 +28,7 @@ public class Servicio {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 2) ESTRUCTURA LINEAL: MiListaEnlazada<T>
-    // -------------------------------------------------------------------------
+   
     public static class MiListaEnlazada<T> implements Iterable<T> {
 
         private Nodo<T> cabeza;
@@ -53,7 +41,6 @@ public class Servicio {
             size   = 0;
         }
 
-        // Agrega un nuevo elemento al final de la lista
         public void add(T valor) {
             Nodo<T> nuevo = new Nodo<>(valor);
             if (cabeza == null) {
@@ -66,7 +53,6 @@ public class Servicio {
             size++;
         }
 
-        // Devuelve el elemento en la posición 'index'
         public T get(int index) {
             if (index < 0 || index >= size) {
                 throw new IndexOutOfBoundsException("Índice fuera de rango: " + index);
@@ -86,13 +72,11 @@ public class Servicio {
             return (size == 0);
         }
 
-        // Para poder usar "for-each" si lo deseas
         @Override
         public java.util.Iterator<T> iterator() {
             return new MiIterador(cabeza);
         }
 
-        // Clase interna de nodo
         private static class Nodo<U> {
             U valor;
             Nodo<U> siguiente;
@@ -102,7 +86,6 @@ public class Servicio {
             }
         }
 
-        // Iterador para recorrer la lista
         private class MiIterador implements java.util.Iterator<T> {
             private Nodo<T> actual;
             public MiIterador(Nodo<T> inicio) {
@@ -121,16 +104,12 @@ public class Servicio {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 3) ESTRUCTURA ÁRBOL: Arbol<T>
-    // -------------------------------------------------------------------------
     public static class Arbol<T> {
         public NodoArbol<T> raiz;
 
         public Arbol() {
             this.raiz = null;
         }
-        // Aquí podrías implementar inserción, búsqueda, etc.
     }
 
     public static class NodoArbol<T> {
@@ -143,24 +122,18 @@ public class Servicio {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 4) ESTRUCTURA GRAFO: Grafo<T>
-    // -------------------------------------------------------------------------
     public static class Grafo<T> {
-        // Usamos una lista enlazada de nodos del grafo
         private MiListaEnlazada<NodoGrafo<T>> nodos;
 
         public Grafo() {
             nodos = new MiListaEnlazada<>();
         }
 
-        // Agrega un nodo al grafo
         public void addNodo(T valor) {
             NodoGrafo<T> nuevo = new NodoGrafo<>(valor);
             nodos.add(nuevo);
         }
 
-        // Agrega arista entre dos nodos
         public void addArista(T origen, T destino) {
             NodoGrafo<T> nOrg = buscarNodo(origen);
             NodoGrafo<T> nDest = buscarNodo(destino);
@@ -193,9 +166,6 @@ public class Servicio {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // 5) ESTRUCTURA HASH: HashEstructura<K,V>
-    // -------------------------------------------------------------------------
     public static class HashEstructura<K, V> {
 
         private static class HashNode<K, V> {
@@ -223,7 +193,6 @@ public class Servicio {
             if (nodo == null) {
                 tabla[index] = new HashNode<>(key, value);
             } else {
-                // Encadenamiento
                 HashNode<K, V> actual = nodo;
                 HashNode<K, V> anterior = null;
                 while (actual != null && !actual.key.equals(key)) {
@@ -233,7 +202,6 @@ public class Servicio {
                 if (actual == null) {
                     anterior.next = new HashNode<>(key, value);
                 } else {
-                    // Actualiza valor si ya existe la clave
                     actual.value = value;
                 }
             }
@@ -252,9 +220,6 @@ public class Servicio {
         }
     }
 
-    // -------------------------------------------------------------------------
-    // MÉTODOS DE "Servicio": crean "grafos" (en realidad, listas de nodos).
-    // -------------------------------------------------------------------------
     
     public MiListaEnlazada<NodoCultivo> crearGrafoManualidades() {
         MiListaEnlazada<NodoCultivo> nodos = new MiListaEnlazada<>();
@@ -338,7 +303,6 @@ public class Servicio {
         int offHuerto   = 2000;
         int offCueva    = 2400;
 
-        // Manualidades
         nodos.add(new NodoCultivo("Morado",    370,  60+offManual,   4, 0, 0));
         nodos.add(new NodoCultivo("Centro",    370, 220+offManual,   5, 0, 1));
         nodos.add(new NodoCultivo("Verde",     110, 180+offManual,   4, 0, 2));
@@ -346,7 +310,6 @@ public class Servicio {
         nodos.add(new NodoCultivo("Amarillo",  540, 280+offManual,   4, 0, 4));
         nodos.add(new NodoCultivo("Naranja",   650, 180+offManual,   4, 0, 5));
 
-        // Alacena
         nodos.add(new NodoCultivo("Alacena1", 370,  60+offAlacena,  4, 1, 0));
         nodos.add(new NodoCultivo("Alacena2", 370, 220+offAlacena,  6, 1, 1));
         nodos.add(new NodoCultivo("Alacena3", 110, 180+offAlacena,  3, 1, 2));
@@ -354,7 +317,6 @@ public class Servicio {
         nodos.add(new NodoCultivo("Alacena5", 540, 280+offAlacena,  4, 1, 4));
         nodos.add(new NodoCultivo("Alacena6", 650, 180+offAlacena,  5, 1, 5));
 
-        // Pecera
         nodos.add(new NodoCultivo("Pecera1", 370,  60+offPecera, 4, 2, 0));
         nodos.add(new NodoCultivo("Pecera2", 370, 220+offPecera, 5, 2, 1));
         nodos.add(new NodoCultivo("Pecera3", 110, 180+offPecera, 3, 2, 2));
@@ -362,26 +324,23 @@ public class Servicio {
         nodos.add(new NodoCultivo("Pecera5", 540, 280+offPecera, 4, 2, 4));
         nodos.add(new NodoCultivo("Pecera6", 650, 180+offPecera, 4, 2, 5));
 
-        // Caldera
         nodos.add(new NodoCultivo("Caldera1", 370,  60+offCaldera, 3, 3, 0));
         nodos.add(new NodoCultivo("Caldera2", 110, 180+offCaldera, 4, 3, 1));
         nodos.add(new NodoCultivo("Caldera3", 650, 180+offCaldera, 2, 3, 2));
 
-        // Tablón
         nodos.add(new NodoCultivo("Tablon1",  370,  60+offTablon,  6, 4, 0));
         nodos.add(new NodoCultivo("Tablon2",  370, 220+offTablon,  6, 4, 1));
         nodos.add(new NodoCultivo("Tablon3",  110, 180+offTablon,  4, 4, 2));
         nodos.add(new NodoCultivo("Tablon4",  200, 280+offTablon,  3, 4, 3));
         nodos.add(new NodoCultivo("Tablon5",  540, 280+offTablon,  4, 4, 4));
 
-        // Huerto
         nodos.add(new NodoCultivo("Huerto1",  370,  60+offHuerto,  6, 4, 0));
         nodos.add(new NodoCultivo("Huerto2",  370, 220+offHuerto,  6, 4, 1));
         nodos.add(new NodoCultivo("Huerto3",  110, 180+offHuerto,  4, 4, 2));
         nodos.add(new NodoCultivo("Huerto4",  200, 280+offHuerto,  3, 4, 3));
         nodos.add(new NodoCultivo("Huerto5",  540, 280+offHuerto,  4, 4, 4));
 
-        // Cueva
+        
         nodos.add(new NodoCultivo("Cueva1",   370,  60+offCueva,   6, 4, 0));
         nodos.add(new NodoCultivo("Cueva2",   370, 220+offCueva,   6, 4, 1));
         nodos.add(new NodoCultivo("Cueva3",   110, 180+offCueva,   4, 4, 2));
@@ -391,11 +350,6 @@ public class Servicio {
         return nodos;
     }
 
-    /**
-     * Conecta todos los nodos de la lista en un ciclo:
-     *  - nodos[i].siguiente = nodos[i+1]
-     *  - el último conecta con el primero
-     */
     public void conectarNodos(MiListaEnlazada<NodoCultivo> nodos) {
         if (nodos.size() < 2) return;
         for (int i = 0; i < nodos.size() - 1; i++) {
@@ -403,7 +357,6 @@ public class Servicio {
             NodoCultivo sig    = nodos.get(i + 1);
             actual.conectar(sig);
         }
-        // Cierra el ciclo
         nodos.get(nodos.size() - 1).conectar(nodos.get(0));
     }
 }

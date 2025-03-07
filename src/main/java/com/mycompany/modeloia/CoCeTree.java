@@ -92,7 +92,7 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
     }
 
     private void cargarImagenEnHash(String fileName) {
-    URL url = getClass().getClassLoader().getResource("<default package>/" + fileName);
+    URL url = getClass().getClassLoader().getResource("OBJETOS/" + fileName);
         if (url == null) {
             System.out.println("No se encontró " + fileName);
         } else {
@@ -176,7 +176,6 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
         }
         if (conexionesVisibles && nodos != null) {
             g.setColor(Color.BLACK);
-            // Dibujamos líneas de conexión entre cada nodo y su "siguiente"
             for (NodoCultivo nodo : nodos) {
                 if (nodo.siguiente != null) {
                     g.drawLine(nodo.x, nodo.y, nodo.siguiente.x, nodo.siguiente.y);
@@ -381,7 +380,7 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                 {"Oak_Resin.png","Wine.png","Rabbit's_Foot.png","Pomegranate.png"}
             };
             private final String[] multiversoPaths = {
-                // Un set grande para multiverso
+
                 "Wild_Horseradish.png","Daffodil.png","Leek.png","Dandelion.png",
                 "Grape.png","Spice_Berry.png","Sweet_Pea.png",
                 "Common_Mushroom.png","Wild_Plum.png","Hazelnut.png","Blackberry.png",
@@ -391,7 +390,7 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                 "Maple_Syrup.png","Oak_Resin.png","Pine_Tar.png","Morel.png",
                 "Parsnip.png","Green_Bean.png","Cauliflower.png","Potato.png",
                 "Tomato.png","Hot_Pepper.png","Blueberry.png","Melon.png",
-                // etc...
+     
             };
 
             public ItemsPanel(int sourceTree, int sourceNodeIndex) {
@@ -527,11 +526,11 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
 
         panel.requestFocusInWindow();
         try {
-            // Crear el clasificador
+
             ItemClassifier classifier = new ItemClassifier();
 
-            // Ruta a la carpeta de sprites en NetBeans
-            String ObjetosFolder = "C:\\Users\\cjcue\\Documents\\NetBeansProjects\\ModeloIA\\src\\main\\resources\\<default package>";
+
+            String ObjetosFolder = "C:\\Users\\USER\\Documents\\NetBeansProjects\\SWLManagement\\src\\main\\java\\OBJETOS";
             classifier.buildDatabase(ObjetosFolder);
 
             
