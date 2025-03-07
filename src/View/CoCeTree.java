@@ -1,57 +1,69 @@
 package View;
 
 import Model.Servicio;
+import Model.Servicio.HashEstructura;
+import Model.Servicio.MiListaEnlazada;
 import Model.Servicio.NodoCultivo;
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
-import java.util.List;
 import javax.swing.*;
+import java.util.Iterator;
 
+/**
+ * Ejemplo que cumple con:
+ * - Estructura lineal propia (MiListaEnlazada)
+ * - Estructura árbol propia (Arbol)
+ * - Estructura grafo propia (Grafo)
+ * - Estructura hash propia (HashEstructura)
+ */
 public class CoCeTree extends JPanel implements KeyListener, ActionListener {
 
     private int arbolActual = 0;
     private int arbolAnteriorAlMultiverso = -1;
     private Servicio servicio;
-    private List<NodoCultivo> nodos;
+
+    // Sustituimos List<NodoCultivo> por nuestra propia lista enlazada
+    private MiListaEnlazada<NodoCultivo> nodos;
+
     private NodoCultivo nodoActual;
     private boolean conexionesVisibles = false;
 
     private JButton nextButton, backButton, multiversoButton, exitMultiversoButton;
     private JLabel treeTitleLabel;
 
+    // Usaremos una estructura Hash propia para almacenar imágenes
+    private HashEstructura<String, Image> imagesHash;
+
+    // Para facilidad, guardamos referencias al resultado del hash
     private Image loteImagen;
     private Image loteCompletoImagen;
     private Image backgroundImage;
 
     public CoCeTree() {
+        // Inicializamos el "servicio" que construye los grafos (listas)
         servicio = new Servicio();
+
+        // Creamos nuestro hash de imágenes con capacidad arbitraria (p.ej. 50)
+        imagesHash = new HashEstructura<>(50);
+
         setPreferredSize(new Dimension(600, 400));
         setBackground(new Color(255, 239, 191));
 
+        // Cargamos imágenes en el Hash
+        cargarImagenEnHash("lote.png");
+        cargarImagenEnHash("lotecompleto.png");
+        cargarImagenEnHash("arbol.png");
+
+        // Extraemos las imágenes del hash (si existen)
+        loteImagen         = imagesHash.get("lote.png");
+        loteCompletoImagen = imagesHash.get("lotecompleto.png");
+        backgroundImage    = imagesHash.get("arbol.png");
+
+        // Por defecto cargamos el "grafo" de manualidades
         nodos = servicio.crearGrafoManualidades();
         if (!nodos.isEmpty()) {
             nodoActual = nodos.get(0);
-        }
-
-        URL url1 = getClass().getResource("/lote.png");
-        if (url1 == null) {
-            System.out.println("No se encontró lote.png");
-        } else {
-            loteImagen = new ImageIcon(url1).getImage();
-        }
-        URL url2 = getClass().getResource("/lotecompleto.png");
-        if (url2 == null) {
-            System.out.println("No se encontró lotecompleto.png");
-        } else {
-            loteCompletoImagen = new ImageIcon(url2).getImage();
-        }
-
-        URL bgUrl = getClass().getResource("/arbol.png");
-        if (bgUrl == null) {
-            System.out.println("No se encontró arbol.png");
-        } else {
-            backgroundImage = new ImageIcon(bgUrl).getImage();
         }
 
         treeTitleLabel = new JLabel("Sala de Manualidades", SwingConstants.CENTER);
@@ -90,6 +102,19 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
         addKeyListener(this);
     }
 
+    /**
+     * Método auxiliar para cargar imágenes en el Hash.
+     */
+    private void cargarImagenEnHash(String fileName) {
+        URL url = getClass().getResource("/" + fileName);
+        if (url == null) {
+            System.out.println("No se encontró " + fileName);
+        } else {
+            Image img = new ImageIcon(url).getImage();
+            imagesHash.put(fileName, img);
+        }
+    }
+
     private void cargarArbol(int indice) {
         conexionesVisibles = false;
         switch (indice) {
@@ -121,7 +146,17 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
             case 5:
                 nodos = servicio.crearGrafoMultiverso();
                 treeTitleLabel.setText("Multiverso");
-                setPreferredSize(new Dimension(800, 2000));
+                setPreferredSize(new Dimension(800, 2800));
+                break;
+            case 6:
+                nodos = servicio.crearGrafoHuerto();
+                treeTitleLabel.setText("Huerto");
+                setPreferredSize(new Dimension(600, 400));
+                break;
+            case 7:
+                nodos = servicio.crearGrafoCueva();
+                treeTitleLabel.setText("Cueva");
+                setPreferredSize(new Dimension(600, 400));
                 break;
         }
         if (!nodos.isEmpty()) {
@@ -130,6 +165,7 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
         revalidate();
         repaint();
     }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -154,6 +190,7 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
         }
         if (conexionesVisibles && nodos != null) {
             g.setColor(Color.BLACK);
+            // Dibujamos líneas de conexión entre cada nodo y su "siguiente"
             for (NodoCultivo nodo : nodos) {
                 if (nodo.siguiente != null) {
                     g.drawLine(nodo.x, nodo.y, nodo.siguiente.x, nodo.siguiente.y);
@@ -182,12 +219,12 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
         requestFocusInWindow();
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             if (!conexionesVisibles && nodos != null) {
+                // Conectamos los nodos con nuestro método propio
                 servicio.conectarNodos(nodos);
                 conexionesVisibles = true;
                 repaint();
             } else {
                 if (nodoActual != null) {
-
                     ItemsDialog dialog = new ItemsDialog(
                         (JFrame) SwingUtilities.getWindowAncestor(this),
                         nodoActual
@@ -223,13 +260,25 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                 arbolActual = 4;
                 cargarArbol(arbolActual);
             } else if (arbolActual == 4) {
-                JOptionPane.showMessageDialog(this, "Ya estás en el Tablón de Anuncios.");
+                arbolActual = 6;
+                cargarArbol(arbolActual);
+            } else if (arbolActual == 6) {
+                arbolActual = 7;
+                cargarArbol(arbolActual);
+            } else if (arbolActual == 7) {
+                JOptionPane.showMessageDialog(this, "Ya estás en la cueva.");
             } else if (arbolActual == 5) {
                 JOptionPane.showMessageDialog(this, "Estás en el Multiverso, no hay 'Next'.");
             }
         }
         else if (e.getSource() == backButton) {
-            if (arbolActual == 4) {
+            if (arbolActual == 7) {
+                arbolActual = 6;
+                cargarArbol(arbolActual);
+            } else if (arbolActual == 6) {
+                arbolActual = 4;
+                cargarArbol(arbolActual);
+            } else if (arbolActual == 4) {
                 arbolActual = 3;
                 cargarArbol(arbolActual);
             } else if (arbolActual == 3) {
@@ -265,6 +314,9 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
         requestFocusInWindow();
     }
 
+    /**
+     * Diálogo que aparece al pulsar Enter sobre un nodo ya conectado.
+     */
     class ItemsDialog extends JDialog {
         private NodoCultivo nodo;
         private JButton aceptarButton, guardarButton;
@@ -302,13 +354,13 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
         }
 
         class ItemsPanel extends JPanel implements MouseListener {
-            private int n; 
             private Image[] topImages; 
             private Rectangle[] topRects;
             private Image[] slots;
             private Rectangle[] slotRects;
             private int selectedIndex = -1;
 
+            // Estos arrays se mantienen tal como estaban
             private final String[][] manualidadesMapping = {
                 {"Wild_Horseradish.png","Daffodil.png","Leek.png","Dandelion.png"},
                 {"Grape.png","Spice_Berry.png","Sweet_Pea.png"},
@@ -363,7 +415,6 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                 setPreferredSize(new Dimension(400, 200));
                 addMouseListener(this);
 
-
                 String[] eligiblePaths = new String[0];
                 if (sourceTree == 0 && sourceNodeIndex < manualidadesMapping.length) {
                     eligiblePaths = manualidadesMapping[sourceNodeIndex];
@@ -376,20 +427,17 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                 } else if (sourceTree == 4 && sourceNodeIndex < tablonMapping.length) {
                     eligiblePaths = tablonMapping[sourceNodeIndex];
                 } else if (sourceTree == 5) {
-
                     eligiblePaths = multiversoPaths;
                 }
-
 
                 int n = eligiblePaths.length;
 
                 topImages = new Image[n];
-                topRects = new Rectangle[n];
+                topRects  = new Rectangle[n];
                 for (int i = 0; i < n; i++) {
                     topImages[i] = loadImage("/" + eligiblePaths[i]);
                 }
 
-    
                 for (int i = 0; i < n; i++) {
                     int x = 20 + i * 70;
                     int y = 20;
@@ -431,7 +479,6 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                     g.drawRect(r.x, r.y, r.width, r.height);
                 }
 
-
                 for (int i = 0; i < slots.length; i++) {
                     Rectangle r = slotRects[i];
                     g.setColor(Color.ORANGE);
@@ -460,7 +507,6 @@ public class CoCeTree extends JPanel implements KeyListener, ActionListener {
                     if (slotRects[i].contains(p)) {
                         if (selectedIndex != -1 && topImages[selectedIndex] != null) {
                             slots[i] = topImages[selectedIndex];
-
                             repaint();
                         }
                         return;
